@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Canvas</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ecf0f1;
+        }
+
+        #canvasContainer {
+            position: relative;
+            opacity: 0; /* Initially set opacity to 0 for fade-in effect */
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        canvas {
+            border: 2px solid #3498db;
+            background-color: #fff;
+            cursor: crosshair;
+            animation: fadeIn 1s forwards; /* Apply fade-in effect to canvas */
+        }
+
+        #controls {
+            display: flex;
+            justify-content: space-between;
+            width: 600px;
+            margin-top: 20px;
+            opacity: 0; /* Initially set opacity to 0 for fade-in effect */
+            animation: fadeIn 1s forwards 0.5s; /* Delay controls' fade-in */
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        input[type="color"],
+        input[type="range"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvasContainer">
+        <canvas id="codeCanvas" width='600' height="400"></canvas>
+        <div id="controls">
+            <input type="color" id="colorPicker" value="#3498db">
+            <input type="range" id="brushSize" min="1" max="20" value="5">
+            <button id="clearButton">Clear Canvas</button>
+        </div>
+    </div>
+
+    <script>
+        const canvasContainer = document.getElementById('canvasContainer');
+        const canvas = document.getElementById('codeCanvas');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+
+        function startPosition(e) {
+            painting = true;
+            draw(e);
+            canvas.addEventListener('mousemove', draw);
+        }
+
+        function endPosition() {
+            painting = false;
+            ctx.beginPath();
+            canvas.removeEventListener('mousemove', draw);
+        }
+
+        function draw(e) {
+            if (!painting) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.lineWidth = document.getElementById('brushSize').value;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = document.getElementById('colorPicker').value;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('mousedown', startPosition);
+        document.addEventListener('mouseup', endPosition);
+
+        document.getElementById('clearButton').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Ensure canvas and controls are fully visible before drawing
+        setTimeout(() => {
+            canvasContainer.style.opacity = '1';
+            document.getElementById('controls').style.opacity = '1';
+        }, 1000);
+    </script>
+</body>
+</html>
